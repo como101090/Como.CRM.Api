@@ -20,7 +20,7 @@ public class TenantService : ITenantService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICurrentTenantService _currentTenant;
     private readonly ITransactionService _transactionService;
-
+    private readonly ICurrentLanguage _currentLanguage;
     private readonly IEmailService _emailService;
 
     public TenantService(
@@ -29,7 +29,8 @@ public class TenantService : ITenantService
                     IHttpContextAccessor httpContextAccessor,
                     ICurrentTenantService currentTenant,
                     ITransactionService transactionService,
-                    IEmailService emailService)
+                    IEmailService emailService,
+                    ICurrentLanguage currentLanguage)
     {
         _db = db;
         _passwordHasher = passwordHasher;
@@ -37,6 +38,8 @@ public class TenantService : ITenantService
         _httpContextAccessor = httpContextAccessor;
         _transactionService = transactionService;
         _emailService = emailService;
+     
+        _currentLanguage = currentLanguage;
     }
 
     public async Task<RegisterTenantResponse> RegisterAsync(
@@ -160,7 +163,8 @@ public class TenantService : ITenantService
                 res.CompanyName,
                 res.Url,
                 res.AdminUserName,
-                res.Password),
+                res.Password,
+                _currentLanguage.Language),
             true,
             cancellationToken);
 

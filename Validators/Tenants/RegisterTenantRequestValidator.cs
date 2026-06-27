@@ -15,7 +15,7 @@ namespace Como.CRM.Api.Validators.Tenants
                 .WithErrorCode(ValidationCodes.MinLength)
                 .MaximumLength(25)
                 .WithErrorCode(ValidationCodes.MaxLength)                 
-                .Matches("^[a-zA-Z0-9]+$")
+                .Matches("^[A-Za-z0-9 ]+$")
                 .WithErrorCode(ValidationCodes.InvalidFormat);
 
             RuleFor(x => x.LegalName)

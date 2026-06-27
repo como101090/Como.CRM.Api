@@ -1,4 +1,5 @@
-﻿using MimeKit;
+﻿using Como.CRM.Api.Enums;
+using MimeKit;
 using static System.Net.WebRequestMethods;
 
 namespace Como.CRM.Api.Common.EmailTemplates
@@ -7,18 +8,85 @@ namespace Como.CRM.Api.Common.EmailTemplates
     public static class WelcomeEmailTemplate
     {
         public static string Build(
-            string companyName,
-            string url,
-            string userName,
-            string password)
+     string companyName,
+     string url,
+     string userName,
+     string password,
+     Language language)
         {
-            var builder = new BodyBuilder();
-            var image = builder.LinkedResources.Add("wwwroot/uploads/logos/como-logo.png");
+            string htmlLang;
+            string dear;
+            string welcome;
+            string accountCreated;
+            string loginInfo;
+            string systemUrl;
+            string userNameText;
+            string passwordText;
+            string loginButton;
+            string adviceTitle;
+            string adviceText;
+            string supportText;
+            string regards;
+            string team;
 
-           //  url = "https://bestbid.crm.comocode.am";
+            switch (language)
+            {
+                case Language.Ru:
+                    htmlLang = "ru";
+                    dear = "Уважаемый";
+                    welcome = "Добро пожаловать";
+                    accountCreated = "Спасибо, что выбрали <strong>Como CRM</strong>. Учетная запись вашей компании успешно создана.";
+                    loginInfo = "Для входа в систему используйте следующие данные.";
+                    systemUrl = "Адрес системы";
+                    userNameText = "Имя пользователя";
+                    passwordText = "Пароль";
+                    loginButton = "Войти в систему";
+                    adviceTitle = "Рекомендация";
+                    adviceText = "В целях безопасности рекомендуем изменить пароль после первого входа.";
+                    supportText = "Если у вас возникнут вопросы или технические проблемы, наша команда будет рада помочь.";
+                    regards = "С уважением,";
+                    team = "Команда Como CRM";
+                    break;
+
+                case Language.Ka:
+                    htmlLang = "ka";
+                    dear = "ძვირფასო";
+                    welcome = "კეთილი იყოს თქვენი მობრძანება";
+                    accountCreated = "გმადლობთ, რომ აირჩიეთ <strong>Como CRM</strong>. თქვენი კომპანიის ანგარიში წარმატებით შეიქმნა.";
+                    loginInfo = "სისტემაში შესასვლელად გამოიყენეთ ქვემოთ მოცემული მონაცემები.";
+                    systemUrl = "სისტემის მისამართი";
+                    userNameText = "მომხმარებლის სახელი";
+                    passwordText = "პაროლი";
+                    loginButton = "სისტემაში შესვლა";
+                    adviceTitle = "რეკომენდაცია";
+                    adviceText = "უსაფრთხოების მიზნით, გირჩევთ პირველი შესვლის შემდეგ შეცვალოთ პაროლი.";
+                    supportText = "თუ კითხვები ან ტექნიკური პრობლემები შეგექმნებათ, ჩვენი გუნდი სიამოვნებით დაგეხმარებათ.";
+                    regards = "პატივისცემით,";
+                    team = "Como CRM გუნდი";
+                    break;
+
+                case Language.Hy:
+                default:
+                    htmlLang = "hy";
+                    dear = "Հարգելի";
+                    welcome = "Բարի գալուստ";
+                    accountCreated = "Շնորհակալություն, որ ընտրել եք <strong>Como CRM</strong> համակարգը։ Ձեր կազմակերպության հաշիվը հաջողությամբ ստեղծվել է։";
+                    loginInfo = "Համակարգ մուտք գործելու համար օգտագործեք ստորև ներկայացված տվյալները։";
+                    systemUrl = "Համակարգի հասցե";
+                    userNameText = "Օգտանուն";
+                    passwordText = "Գաղտնաբառ";
+                    loginButton = "Մուտք գործել համակարգ";
+                    adviceTitle = "Խորհուրդ";
+                    adviceText = "Անվտանգության նկատառումներից ելնելով՝ առաջին մուտքից հետո խորհուրդ ենք տալիս փոխել Ձեր գաղտնաբառը։";
+                    supportText = "Եթե մուտք գործելու ընթացքում ունենաք հարցեր կամ տեխնիկական խնդիրներ, մեր մասնագետները սիրով կօգնեն Ձեզ։";
+                    regards = "Հարգանքով,";
+                    team = "Como CRM թիմ";
+                    break;
+            }
+
             return $"""
 <!DOCTYPE html>
-<html lang="hy">
+<html lang="{htmlLang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,21 +120,19 @@ namespace Como.CRM.Api.Common.EmailTemplates
         <td style="padding:35px 40px 40px 40px;">
 
            <h2 style="margin:0 0 22px 0;color:#004D49;font-size:26px;line-height:34px;font-weight:700;">
-    Հարգելի {companyName},
-</h2>
+                {dear} {companyName},
+           </h2>
 
-<p style="margin:0;font-size:18px;color:#333;">
-    Բարի գալուստ <strong>Como CRM</strong>։
-</p>
-
+            <p style="margin:0;font-size:18px;color:#333;">
+                {welcome} <strong>Como CRM</strong>
+            </p>
 
             <p style="font-size:16px;color:#2d3436;line-height:28px;margin:0 0 20px 0;">
-                Շնորհակալություն, որ ընտրել եք <strong>Como CRM</strong> համակարգը։
-                Ձեր կազմակերպության հաշիվը հաջողությամբ ստեղծվել է։
+                {accountCreated}
             </p>
 
             <p style="font-size:16px;color:#2d3436;line-height:28px;margin:0 0 26px 0;">
-                Համակարգ մուտք գործելու համար օգտագործեք ստորև ներկայացված տվյալները։
+                {loginInfo}
             </p>
 
             <table width="100%" cellpadding="0" cellspacing="0"
@@ -74,7 +140,7 @@ namespace Como.CRM.Api.Common.EmailTemplates
 
                 <tr>
                     <td style="padding:10px 0;width:190px;font-size:15px;color:#1f2d2b;font-weight:700;">
-                        Համակարգի հասցե
+                        {systemUrl}
                     </td>
                     <td style="padding:10px 0;font-size:15px;">
                         <a href="{url}" target="_blank"
@@ -86,7 +152,7 @@ namespace Como.CRM.Api.Common.EmailTemplates
 
                 <tr>
                     <td style="padding:10px 0;font-size:15px;color:#1f2d2b;font-weight:700;">
-                        Օգտանուն
+                        {userNameText}
                     </td>
                     <td style="padding:10px 0;font-size:15px;color:#2d3436;">
                         {userName}
@@ -95,7 +161,7 @@ namespace Como.CRM.Api.Common.EmailTemplates
 
                 <tr>
                     <td style="padding:10px 0;font-size:15px;color:#1f2d2b;font-weight:700;">
-                        Գաղտնաբառ
+                        {passwordText}
                     </td>
                     <td style="padding:10px 0;font-size:15px;color:#2d3436;">
                         {password}
@@ -117,7 +183,7 @@ namespace Como.CRM.Api.Common.EmailTemplates
                         font-size:17px;
                         font-weight:700;
                         box-shadow:0 8px 18px rgba(0,77,73,0.22);">
-                    Մուտք գործել համակարգ
+                    {loginButton}
                 </a>
 
             </div>
@@ -132,21 +198,19 @@ namespace Como.CRM.Api.Common.EmailTemplates
                     line-height:26px;
                     font-size:15px;">
 
-                <strong style="color:#004D49;">Խորհուրդ</strong><br/>
+                <strong style="color:#004D49;">{adviceTitle}</strong><br/>
 
-                Անվտանգության նկատառումներից ելնելով՝ առաջին մուտքից հետո
-                խորհուրդ ենք տալիս փոխել Ձեր գաղտնաբառը։
+                {adviceText}
 
             </div>
 
             <p style="font-size:15px;color:#4b5b58;line-height:26px;margin:28px 0 0 0;">
-                Եթե մուտք գործելու ընթացքում ունենաք հարցեր կամ տեխնիկական խնդիրներ,
-                մեր մասնագետները սիրով կօգնեն Ձեզ։
+                {supportText}
             </p>
 
             <p style="font-size:15px;color:#2d3436;line-height:26px;margin:28px 0 0 0;">
-                Հարգանքով,<br/>
-                <strong style="color:#004D49;">Como CRM թիմ</strong>
+                {regards}<br/>
+                <strong style="color:#004D49;">{team}</strong>
             </p>
 
         </td>
@@ -166,5 +230,5 @@ namespace Como.CRM.Api.Common.EmailTemplates
 """;
         }
     }
-}
 
+}
