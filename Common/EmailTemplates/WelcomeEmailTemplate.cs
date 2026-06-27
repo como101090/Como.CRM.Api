@@ -31,6 +31,24 @@ namespace Como.CRM.Api.Common.EmailTemplates
 
             switch (language)
             {
+                case Language.En:
+                    htmlLang = "en";
+                    dear = "Dear";
+                    welcome = "Welcome to";
+                    accountCreated = "Thank you for choosing <strong>Como CRM</strong>. Your company account has been successfully created.";
+                    loginInfo = "Please use the credentials below to access the system.";
+                    systemUrl = "System URL";
+                    userNameText = "Username";
+                    passwordText = "Password";
+                    loginButton = "Log In";
+                    adviceTitle = "Recommendation";
+                    adviceText = "For security reasons, we recommend changing your password after your first login.";
+                    supportText = "If you have any questions or experience technical issues while logging in, our support team will be happy to assist you.";
+                    regards = "Best regards,";
+                    team = "Como CRM Team";
+                    break;
+
+
                 case Language.Ru:
                     htmlLang = "ru";
                     dear = "Уважаемый";

@@ -27,8 +27,9 @@ public class TransactionService : ITransactionService
 
             return result;
         }
-        catch
+        catch (Exception)
         {
+            
             await transaction.RollbackAsync(CancellationToken.None);
             throw;
         }
