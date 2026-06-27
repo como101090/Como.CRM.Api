@@ -18,16 +18,16 @@ namespace Como.CRM.Api.Validators.Tenants
                 .Matches("^[A-Za-z0-9 ]+$")
                 .WithErrorCode(ValidationCodes.InvalidFormat);
 
-            RuleFor(x => x.LegalName)
-                .NotEmpty()
+            //RuleFor(x => x.LegalName)
+            //    .NotEmpty()
                 
-                .WithErrorCode(ValidationCodes.Required)
-                .MinimumLength(2)
-                .WithErrorCode(ValidationCodes.MinLength)
-                .MaximumLength(200)
-                .WithErrorCode(ValidationCodes.MaxLength)
-                .Matches(@"^[Ա-Ֆա-ֆև0-9\s-]+$")
-                .WithErrorCode(ValidationCodes.InvalidFormat);
+            //    .WithErrorCode(ValidationCodes.Required)
+            //    .MinimumLength(2)
+            //    .WithErrorCode(ValidationCodes.MinLength)
+            //    .MaximumLength(200)
+            //    .WithErrorCode(ValidationCodes.MaxLength)
+            //    .Matches(@"^[Ա-Ֆա-ֆև0-9\s-]+$")
+            //    .WithErrorCode(ValidationCodes.InvalidFormat);
 
 
             RuleFor(x => x.CompanyEmail)

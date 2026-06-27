@@ -64,10 +64,10 @@ public class TenantService : ITenantService
                            TenantBusinessCodes.PhoneAlreadyExists,
                            StatusCodes.Status409Conflict);
 
-        if (await _db.Tenants.AnyAsync(z => z.LegalName == request.LegalName.Trim()))
-            throw new BusinessException(
-                           TenantBusinessCodes.LegalNameAlreadyExists,
-                           StatusCodes.Status409Conflict);
+        //if (await _db.Tenants.AnyAsync(z => z.LegalName == request.LegalName.Trim()))
+        //    throw new BusinessException(
+        //                   TenantBusinessCodes.LegalNameAlreadyExists,
+        //                   StatusCodes.Status409Conflict);
 
         if (await _db.Tenants.AnyAsync(z => z.Host == host))
             throw new BusinessException(
@@ -87,7 +87,7 @@ public class TenantService : ITenantService
                 var tenant = new Tenant
                 {
                     PublicId = Guid.NewGuid(),
-                    LegalName = request.LegalName.Trim(),
+                    //LegalName = request.LegalName.Trim(),
                     BrandName = request.BrandName.Trim(),
                     Host = host,
                     CompanyEmail = request.CompanyEmail.Trim(),
@@ -144,7 +144,7 @@ public class TenantService : ITenantService
                     tenant.Host,
                     Url = url,
                     CompanyEmail = tenant.CompanyEmail,
-                    CompanyName = tenant.LegalName,
+                    BrendName = tenant.BrandName,
                     AdminUserName = adminUser.UserName,
                     Password = password
                 };
@@ -160,7 +160,7 @@ public class TenantService : ITenantService
             res.CompanyEmail,
             "Como CRM",
             WelcomeEmailTemplate.Build(
-                res.CompanyName,
+                res.BrendName,
                 res.Url,
                 res.AdminUserName,
                 res.Password,
@@ -173,7 +173,7 @@ public class TenantService : ITenantService
             Host = res.Host,
             Url = res.Url,
             CompanyEmail = res.CompanyEmail,
-            CompanyName = res.CompanyName,
+            BrendName = res.BrendName,
             IsSendEmailSuccess = isSendEmailSuccess
         };
     }

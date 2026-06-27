@@ -4,7 +4,7 @@ public class Tenant
 {
     public long Id { get; set; }
     public Guid PublicId { get; set; } = Guid.NewGuid();
-    public string LegalName { get; set; } = string.Empty;
+    public string? LegalName { get; set; }
     public string BrandName { get; set; } = string.Empty;
     public string Host { get; set; } = string.Empty;
     public string CompanyEmail { get; set; } = string.Empty;

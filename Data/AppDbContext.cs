@@ -213,8 +213,7 @@ public class AppDbContext : DbContext
             b.HasKey(x => x.Id);
 
             b.Property(x => x.LegalName)
-                .HasMaxLength(300)
-                .IsRequired();
+                .HasMaxLength(300);
 
             b.Property(x => x.BrandName)
                 .HasMaxLength(150)
