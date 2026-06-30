@@ -63,7 +63,7 @@ public class AppDbContext : DbContext
             FromEmail = "comocode.info@gmail.com",
             UserName = "comocode.info@gmail.com",
             Host = "smtp.gmail.com",
-            Password = "xojljswkfupixqig",
+            Password = "",
             Port = 587
            
         });
@@ -194,8 +194,7 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             entity.Property(x => x.Password)
-                .HasMaxLength(500)
-                .IsRequired();
+                .HasMaxLength(500);
 
             entity.HasOne(x => x.PublisherInfo)
                 .WithMany(x => x.Mails)
