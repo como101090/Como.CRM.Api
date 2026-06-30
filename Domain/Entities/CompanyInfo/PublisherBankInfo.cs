@@ -11,7 +11,7 @@
 
         public string BankName { get; set; }
 
-        public string BankDockName { get; set; }
+        public string BankDockName { get; set; } = string.Empty;
 
         public ICollection<PublisherBankAccountInfo> Accounts { get; set; } = [];
     }

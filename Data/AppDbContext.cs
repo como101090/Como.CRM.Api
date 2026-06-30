@@ -79,6 +79,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<PublisherBankInfo>().HasData(new PublisherBankInfo
         {
             Id = 1,
+            Code = "0001",
             PublisherInfoId = 1,
             BankName = "Ameriabank"
         });
@@ -220,8 +221,7 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             entity.Property(x => x.BankDockName)
-                .HasMaxLength(300)
-                .IsRequired();
+                .HasMaxLength(300);
 
             entity.HasOne(x => x.PublisherInfo)
                 .WithMany(x => x.Banks)
