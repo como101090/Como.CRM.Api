@@ -1,33 +1,22 @@
 using Como.CRM.Api.Data;
+using Como.CRM.Api.Options;
 using Como.CRM.Api.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Como.CRM.Api.Middleware;
 
-/// <summary>
-/// Tenant-ը որոշում է request-ի Host/Subdomain-ից։
-///
-/// Production:
-/// https://crystaldent.crm.comocode.am/api/auth/login
-///
-/// Development:
-/// https://crystaldent.localhost:7080/api/auth/login
-///
-/// Առանց tenant context-ի կարող են աշխատել միայն.
-/// - Tenant գրանցում
-/// - Swagger
-/// - Health
-/// - Root
-///
-/// Մնացած բոլոր API-ները պարտադիր պետք է ունենան tenant context։
-/// </summary>
 public class TenantResolutionMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly AppOptions _appOptions;
 
-    public TenantResolutionMiddleware(RequestDelegate next)
+    public TenantResolutionMiddleware(
+        RequestDelegate next,
+        IOptions<AppOptions> appOptions)
     {
         _next = next;
+        _appOptions = appOptions.Value;
     }
 
     public async Task InvokeAsync(
@@ -50,7 +39,7 @@ public class TenantResolutionMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             await context.Response.WriteAsync(
-                "Invalid tenant. Use https://{tenant}.crm.comocode.am or https://{tenant}.localhost:7080.",
+                $"Invalid tenant. Use https://{{tenant}}.{_appOptions.BaseDomain}.",
                 context.RequestAborted);
 
             return;
@@ -85,7 +74,7 @@ public class TenantResolutionMiddleware
         await _next(context);
     }
 
-    private static bool ShouldSkipTenantResolution(PathString path)
+    private bool ShouldSkipTenantResolution(PathString path)
     {
         var value = path.Value?.ToLowerInvariant() ?? string.Empty;
 
@@ -96,51 +85,32 @@ public class TenantResolutionMiddleware
                || value.StartsWith("/favicon");
     }
 
-    private static string? ExtractTenantFromHost(string? host)
+    private string? ExtractTenantFromHost(string? host)
     {
         if (string.IsNullOrWhiteSpace(host))
             return null;
 
-        host = host.Trim().ToLowerInvariant();
+        host = NormalizeTenantHost(host);
 
-        if (host == "localhost" ||
-            host == "127.0.0.1" ||
-            host == "::1")
-        {
-            return null;
-        }
+        var baseDomain = NormalizeTenantHost(_appOptions.BaseDomain);
 
-        var parts = host.Split(
-            '.',
-            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        if (parts.Length < 2)
+        if (host == baseDomain)
             return null;
 
-        // Development:
-        // crystaldent.localhost:7080
-        // Host = crystaldent.localhost
-        // Tenant = crystaldent
-        if (parts.Length >= 2 &&
-            parts[^1].Equals("localhost", StringComparison.OrdinalIgnoreCase))
-        {
-            return NormalizeTenantHost(parts[0]);
-        }
+        var suffix = "." + baseDomain;
 
-        // Production:
-        // crystaldent.crm.comocode.am
-        // Tenant = crystaldent
-        if (parts.Length >= 4 &&
-            parts[1].Equals("crm", StringComparison.OrdinalIgnoreCase) &&
-            parts[2].Equals("comocode", StringComparison.OrdinalIgnoreCase) &&
-            parts[3].Equals("am", StringComparison.OrdinalIgnoreCase))
-        {
-            return NormalizeTenantHost(parts[0]);
-        }
+        if (!host.EndsWith(suffix))
+            return null;
 
-        // crm.comocode.am → սա register/login portal է, tenant չկա
-        // comocode.am կամ www.comocode.am → WordPress / company site, tenant չկա
-        return null;
+        var tenantHost = host[..^suffix.Length];
+
+        if (string.IsNullOrWhiteSpace(tenantHost))
+            return null;
+
+        if (tenantHost.Contains('.'))
+            return null;
+
+        return NormalizeTenantHost(tenantHost);
     }
 
     private static string NormalizeTenantHost(string value)

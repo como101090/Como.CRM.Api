@@ -7,5 +7,9 @@ namespace Como.CRM.Api.Services.Implementations
         public long? UserId => null;
 
         public string? UserName => null;
+
+        public Guid? TenantPublicId => null;
+
+        public string? TenantHost => null;
     }
 }

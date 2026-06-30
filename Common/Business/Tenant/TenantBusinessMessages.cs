@@ -50,13 +50,21 @@ namespace Como.CRM.Api.Common.Business.Tenant
                     _ => "A company with this host already exists."
                 },
 
-                //TenantBusinessCodes.TenantInactive => language switch
-                //{
-                //    Language.Hy => "Կազմակերպության հաշիվը ակտիվ չէ։",
-                //    Language.Ru => "Аккаунт организации не активен.",
-                //    Language.Ka => "ორგანიზაციის ანგარიში აქტიური არ არის.",
-                //    _ => "The organization account is not active."
-                //},
+                TenantBusinessCodes.TenantNotFound => language switch
+                {
+                    Language.Hy => "Ընկերությունը չի գտնվել։",
+                    Language.Ru => "Компания не найдена.",
+                    Language.Ka => "კომპანია ვერ მოიძებნა.",
+                    _ => "Company not found."
+                },
+
+                TenantBusinessCodes.TenantSuspended => language switch
+                {
+                    Language.Hy => "Ընկերության հաշիվը կասեցված է։",
+                    Language.Ru => "Учетная запись компании приостановлена.",
+                    Language.Ka => "კომპანიის ანგარიში შეჩერებულია.",
+                    _ => "The company account has been suspended."
+                },
 
                 _ => language switch
                 {

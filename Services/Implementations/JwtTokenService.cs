@@ -26,7 +26,7 @@ public class JwtTokenService : IJwtTokenService
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.UserName),
-            new("tenant_id", tenant.Id.ToString()),
+            new("tenant_id", tenant.PublicId.ToString()),
             new("tenant_host", tenant.Host)
         };
 
@@ -45,10 +45,8 @@ public class JwtTokenService : IJwtTokenService
         return new LoginResponse
         {
             AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-            ExpiresAt = expiresAt,
-            PublicTenantId = tenant.PublicId,
-            UserId = user.Id,
-            UserName = user.UserName,
+            ExpirationMinutes = _options.ExpirationMinutes,
+            ExpiresAtUtc = expiresAt,
             Permissions = permissions
         };
     }

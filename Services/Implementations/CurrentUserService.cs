@@ -27,5 +27,24 @@ public class CurrentUserService : ICurrentUserService
     }
 
     public string? UserName =>
-        _accessor.HttpContext?.User.Identity?.Name;
+        _accessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+
+    public Guid? TenantPublicId
+    {
+        get
+        {
+            var value = _accessor.HttpContext?
+                .User
+                .FindFirst("tenant_id")?.Value;
+
+            return Guid.TryParse(value, out var tenantId)
+                ? tenantId
+                : null;
+        }
+    }
+
+    public string? TenantHost =>
+        _accessor.HttpContext?
+            .User
+            .FindFirst("tenant_host")?.Value;
 }

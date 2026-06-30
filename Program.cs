@@ -10,6 +10,7 @@ using Como.CRM.Api.Validators.Tenants;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
+
+builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 
 builder.Services.AddHttpContextAccessor();
 
@@ -60,6 +63,10 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 
+var appOptions = builder.Configuration
+    .GetSection("App")
+    .Get<AppOptions>()!;
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -67,6 +74,22 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Como CRM API",
         Version = "v1"
     });
+
+    options.AddServer(new OpenApiServer
+    {
+        Url = "{baseUrl}",
+        Description = "Postman base URL",
+        Variables = new Dictionary<string, OpenApiServerVariable>
+        {
+            ["baseUrl"] = new OpenApiServerVariable
+            {
+                Default = $"https://{appOptions.BaseDomain}",
+                Description = "API base URL"
+            }
+        }
+    });
+
+
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

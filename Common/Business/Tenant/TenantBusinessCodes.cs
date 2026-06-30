@@ -12,6 +12,8 @@
 
         public const string LegalNameAlreadyExists = "LEGAL_NAME_ALREADY_EXISTS";   
 
-        public const string TenantInactive = "TENANT_INACTIVE";
+        public const string TenantNotFound = "TENANT_NOT_FOUND";
+
+        public const string TenantSuspended = "TENANT_SUSPENDED";
     }
 }

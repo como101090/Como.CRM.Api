@@ -138,7 +138,7 @@ namespace Como.CRM.Api.Common.EmailTemplates
         <td style="padding:35px 40px 40px 40px;">
 
            <h2 style="margin:0 0 22px 0;color:#004D49;font-size:26px;line-height:34px;font-weight:700;">
-                {dear} {companyName},
+                {dear} {companyName}
            </h2>
 
             <p style="margin:0;font-size:18px;color:#333;">

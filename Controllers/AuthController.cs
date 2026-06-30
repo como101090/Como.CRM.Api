@@ -1,5 +1,8 @@
+using Como.CRM.Api.Common.Responses;
 using Como.CRM.Api.DTOs.Auth;
 using Como.CRM.Api.Services.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Como.CRM.Api.Controllers;
@@ -19,6 +22,15 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
         var result = await _authService.LoginAsync(request, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<ActionResult<bool>> ChangePassword([FromBody]ChangePasswordRequest request, CancellationToken ct)
+    {
+        var result = await _authService.ChangePasswordAsync(request, ct);
+
         return Ok(result);
     }
 }

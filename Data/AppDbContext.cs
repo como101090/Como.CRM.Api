@@ -42,9 +42,60 @@ public class AppDbContext : DbContext
 
     public DbSet<PublisherBankAccountInfo> PublisherBankAccountInfos => Set<PublisherBankAccountInfo>();
 
+
+
+    private static void PublisherInfoDefaultType(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PublisherInfo>().HasData(new PublisherInfo
+        {
+            Id = 1,
+            TaxCode = "08284674",
+            TaxName = "Քոմո Կոդ ՍՊԸ",
+            BrendName = "Como Code LLC",
+            Description = "Como CRM publisher information"
+        });
+
+        modelBuilder.Entity<PublisherMailInfo>().HasData(new PublisherMailInfo
+        {
+            Id = 1,
+            PublisherInfoId = 1,
+            FromName = "Como CRM",
+            FromEmail = "comocode.info@gmail.com",
+            UserName = "comocode.info@gmail.com",
+            Host = "smtp.gmail.com",
+            Password = "xojljswkfupixqig",
+            Port = 587
+           
+        });
+
+        modelBuilder.Entity<PublisherPhoneInfo>().HasData(new PublisherPhoneInfo
+        {
+            Id = 1,
+            PublisherId = 1,
+            PhoneType = "Mobile",
+            PhoneNumber = "+37477396770"
+        });
+
+        modelBuilder.Entity<PublisherBankInfo>().HasData(new PublisherBankInfo
+        {
+            Id = 1,
+            PublisherInfoId = 1,
+            BankName = "Ameriabank"
+        });
+
+        modelBuilder.Entity<PublisherBankAccountInfo>().HasData(new PublisherBankAccountInfo
+        {
+            Id = 1,
+            BankInfoId = 1,
+            CurrencyName = "AMD",
+            AccountNumber = "1570094723317200"
+        });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        PublisherInfoDefaultType(modelBuilder);
 
         ConfigureTenant(modelBuilder);
         ConfigureUsers(modelBuilder);
