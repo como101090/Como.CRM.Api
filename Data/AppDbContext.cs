@@ -3,6 +3,7 @@ using Como.CRM.Api.Domain.Entities;
 using Como.CRM.Api.Domain.Entities.CompanyInfo;
 using Como.CRM.Api.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Reflection;
 using System.Text.Json;
 
@@ -451,24 +452,17 @@ public class AppDbContext : DbContext
     }
 
     private void SetTenantQueryFilter<TEntity>(ModelBuilder modelBuilder)
-        where TEntity : class, IHasTenant
+     where TEntity : class, IHasTenant
     {
-        if (typeof(ISoftDeletable).IsAssignableFrom(typeof(TEntity)))
-        {
-            modelBuilder.Entity<TEntity>().HasQueryFilter(x =>
-                x.TenantId == _tenant.TenantId &&
-                !EF.Property<bool>(x, nameof(ISoftDeletable.IsRemove)));
-        }
-        else
-        {
-            modelBuilder.Entity<TEntity>().HasQueryFilter(x =>
-                x.TenantId == _tenant.TenantId);
-        }
+        modelBuilder.Entity<TEntity>().HasQueryFilter(x =>
+            x.TenantId == _tenant.TenantId);
     }
 
+    // ինչ որ ժառանքժգածա BaseTenantEntity հանգարծ
+    // առանց TenantId տող չգրանցվի
     private static void ConfigureBase<TEntity>(
-        Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> b)
-        where TEntity : BaseTenantEntity
+    EntityTypeBuilder<TEntity> b)
+    where TEntity : BaseTenantEntity
     {
         b.HasKey(x => x.Id);
 
@@ -476,6 +470,11 @@ public class AppDbContext : DbContext
             .IsRequired();
 
         b.HasIndex(x => x.TenantId);
+
+        b.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

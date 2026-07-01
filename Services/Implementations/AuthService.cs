@@ -37,27 +37,32 @@ public class AuthService : IAuthService
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         if (!_tenant.IsResolved)
-            throw new UnauthorizedAccessException("Tenant context is required for login.");
+            throw new BusinessException(TenantBusinessCodes.TenantNotFound, StatusCodes.Status404NotFound);
 
         var tenant = await _db.Tenants
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == _tenant.TenantId && x.IsActive, cancellationToken)
-            ?? throw new UnauthorizedAccessException("Tenant not found or inactive.");
+            .FirstOrDefaultAsync(x => x.Id == _tenant.TenantId && x.PublicId == _tenant.TenantPublicId && x.IsActive && !x.IsRemove, cancellationToken);
 
-        var user = await _db.Users
+        if (tenant == null)
+            throw new BusinessException(TenantBusinessCodes.TenantNotFound, StatusCodes.Status404NotFound);
+
+        var user = await _db.Users.AsNoTracking()
             .Include(x => x.UserRoles)
                 .ThenInclude(x => x.Role)
                     .ThenInclude(x => x.RolePermissions)
                         .ThenInclude(x => x.Permission)
-            .FirstOrDefaultAsync(x => x.UserName == request.UserName && !x.IsRemove, cancellationToken);
-            //?? throw new UnauthorizedAccessException("Invalid username or password.");
+            .FirstOrDefaultAsync(x => x.UserName == request.UserName, cancellationToken);
 
-        if (!user.IsActive)
-            throw new UnauthorizedAccessException("User is inactive.");
+
+        if(user == null)
+            throw new BusinessException(AuthBusinessCodes.UserNotFound, StatusCodes.Status404NotFound);
+
+        if (!user.IsActive || user.IsRemove)
+            throw new BusinessException(AuthBusinessCodes.UserSuspended, StatusCodes.Status404NotFound);
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (result == PasswordVerificationResult.Failed)
-            throw new UnauthorizedAccessException("Invalid username or password.");
+            throw new BusinessException(AuthBusinessCodes.InvalidUserNameOrPassword, StatusCodes.Status404NotFound);
 
         var permissions = user.UserRoles
             .Where(ur => !ur.Role.IsRemove)
@@ -108,6 +113,10 @@ public class AuthService : IAuthService
         if(!user.IsActive || user.IsRemove)
             throw new BusinessException(AuthBusinessCodes.UserNotFound, StatusCodes.Status404NotFound);
 
+        if(request.NewPassword != request.ConfirmNewPassword)
+            throw new BusinessException(AuthBusinessCodes.PasswordConfirmationDoesNotMatch, StatusCodes.Status400BadRequest);
+
+
         var currentPasswordOk = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
 
         if (currentPasswordOk == PasswordVerificationResult.Failed)
@@ -118,7 +127,7 @@ public class AuthService : IAuthService
         }
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
-        //user.UpdateDate = DateTime.UtcNow;
+
 
         await _db.SaveChangesAsync(ct);
         return true;

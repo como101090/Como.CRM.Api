@@ -13,5 +13,9 @@
         public const string UserNotFound = "USER_NOT_FOUND";
 
         public const string UserSuspended = "USER_SUSPENDED";
+
+        public const string InvalidUserNameOrPassword = "INVALID_USERNAME_OR_PASSWORD";
+
+        public const string PasswordConfirmationDoesNotMatch = "PASSWORD_CONFIRMATION_DOES_NOT_MATCH";
     }
 }

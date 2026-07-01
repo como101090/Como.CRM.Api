@@ -1,12 +1,21 @@
+using Como.CRM.Api.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Como.CRM.Api.DTOs.Auth;
 
 public class LoginRequest
 {
-    [Required]
+    [FieldName(
+        "User Name",
+        "Օգտանուն",
+        "Имя пользователя",
+        "მომხმარებლის სახელი")]
     public string UserName { get; set; } = string.Empty;
 
-    [Required]
+    [FieldName(
+        "Password",
+        "Գաղտնաբառ",
+        "Пароль",
+        "პაროლი")]
     public string Password { get; set; } = string.Empty;
 }

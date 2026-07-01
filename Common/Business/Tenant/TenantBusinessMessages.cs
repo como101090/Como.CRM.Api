@@ -49,6 +49,13 @@ namespace Como.CRM.Api.Common.Business.Tenant
                     Language.Ka => "კომპანია ამ ჰოსტით უკვე რეგისტრირებულია.",
                     _ => "A company with this host already exists."
                 },
+                TenantBusinessCodes.HostInvalid => language switch
+                {
+                    Language.Hy => "Հոսթը սխալ ձևաչափով է։",
+                    Language.Ru => "Хост имеет неверный формат.",
+                    Language.Ka => "ჰოსტის ფორმატი არასწორია.",
+                    _ => "The host format is invalid."
+                },
 
                 TenantBusinessCodes.TenantNotFound => language switch
                 {

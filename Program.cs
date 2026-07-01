@@ -10,7 +10,6 @@ using Como.CRM.Api.Validators.Tenants;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,16 +18,30 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
-builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
 
-builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
+builder.Services.Configure<SmtpOptions>(
+    builder.Configuration.GetSection(SmtpOptions.SectionName));
+
+builder.Services.Configure<AppOptions>(
+    builder.Configuration.GetSection("App"));
+
+var jwtConfig = builder.Configuration
+    .GetSection(JwtOptions.SectionName)
+    .Get<JwtOptions>()
+    ?? throw new InvalidOperationException("Jwt configuration is missing.");
+
+var appOptions = builder.Configuration
+    .GetSection("App")
+    .Get<AppOptions>()
+    ?? throw new InvalidOperationException("App configuration is missing.");
 
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
-
+builder.Services.AddScoped<ICurrentLanguage, CurrentLanguage>();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -38,10 +51,7 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 builder.Services.AddScoped<IErrorMessageService, ErrorMessageService>();
-
-
 builder.Services.AddSingleton<IBusinessMessageProvider, TenantBusinessMessages>();
-builder.Services.AddScoped<ICurrentLanguage, CurrentLanguage>();
 
 builder.Services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
 
@@ -59,13 +69,38 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidationFilter>();
 });
 
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtConfig.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtConfig.Audience,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtConfig.SecretKey)),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
-
-var appOptions = builder.Configuration
-    .GetSection("App")
-    .Get<AppOptions>()!;
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -88,8 +123,6 @@ builder.Services.AddSwaggerGen(options =>
             }
         }
     });
-
-
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -134,21 +167,19 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
 app.UseCors("React");
 
-// Tenant-ը որոշվում է միայն Host/Subdomain-ից։
-// Production: https://crystaldent.comocrm.am
-// Development: https://crystaldent.localhost:7080
 app.UseMiddleware<TenantResolutionMiddleware>();
 
 app.UseAuthentication();
 
-// Token-ի tenant_id claim-ը պետք է համընկնի request-ի Host-ից գտնված Tenant-ի հետ։
 app.UseMiddleware<TenantTokenValidationMiddleware>();
 
 app.UseAuthorization();
 
 app.MapGet("/", () => "Como CRM API Running");
+
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "OK",

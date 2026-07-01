@@ -64,10 +64,6 @@ public class TenantService : ITenantService
                            TenantBusinessCodes.PhoneAlreadyExists,
                            StatusCodes.Status409Conflict);
 
-        //if (await _db.Tenants.AnyAsync(z => z.LegalName == request.LegalName.Trim()))
-        //    throw new BusinessException(
-        //                   TenantBusinessCodes.LegalNameAlreadyExists,
-        //                   StatusCodes.Status409Conflict);
 
         if (await _db.Tenants.AnyAsync(z => z.Host == host))
             throw new BusinessException(

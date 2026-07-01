@@ -1,3 +1,5 @@
+using Como.CRM.Api.Common.Business.Tenant;
+using Como.CRM.Api.Common.Exceptions;
 using Como.CRM.Api.Data;
 using Como.CRM.Api.Options;
 using Como.CRM.Api.Services.Abstractions;
@@ -32,42 +34,31 @@ public class TenantResolutionMiddleware
             return;
         }
 
-        var rawHost = context.Request.Host.Host;
+        var rawHost = context.Request.Host.Value;
         var tenantHost = ExtractTenantFromHost(rawHost);
 
-        if (string.IsNullOrWhiteSpace(tenantHost))
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsync(
-                $"Invalid tenant. Use https://{{tenant}}.{_appOptions.BaseDomain}.",
-                context.RequestAborted);
-
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(tenantHost)) 
+            throw new BusinessException(TenantBusinessCodes.HostInvalid, StatusCodes.Status404NotFound);
 
         var normalizedHost = NormalizeTenantHost(tenantHost);
 
         var tenant = await db.Tenants
             .AsNoTracking()
             .FirstOrDefaultAsync(x =>
-                    x.Host.ToLower() == normalizedHost &&
-                    x.IsActive &&
-                    !x.IsRemove,
+                    x.Host.ToLower() == normalizedHost,
                 context.RequestAborted);
 
         if (tenant == null)
-        {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            await context.Response.WriteAsync(
-                "Tenant not found or inactive.",
-                context.RequestAborted);
+            throw new BusinessException(TenantBusinessCodes.TenantNotFound, StatusCodes.Status404NotFound);
 
-            return;
-        }
+        if(!tenant.IsActive || tenant.IsRemove)
+            throw new BusinessException(TenantBusinessCodes.TenantSuspended, StatusCodes.Status404NotFound);
+
+
 
         context.Items["TenantId"] = tenant.Id;
         context.Items["Subdomain"] = tenant.Host;
-        context.Items["Host"] = rawHost;
+        context.Items["Host"] = tenantHost;
 
         currentTenant.SetTenant(tenant.Id, tenant.PublicId, tenant.Host);
 

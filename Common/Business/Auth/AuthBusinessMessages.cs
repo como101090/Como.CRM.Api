@@ -17,6 +17,22 @@ namespace Como.CRM.Api.Common.Business.Auth
                     _ => "User not found."
                 },
 
+                AuthBusinessCodes.InvalidUserNameOrPassword => language switch
+                {
+                    Language.Hy => "Մուտքագրված օգտանունը կամ գաղտնաբառը սխալ է։",
+                    Language.Ru => "Неверное имя пользователя или пароль.",
+                    Language.Ka => "მომხმარებლის სახელი ან პაროლი არასწორია.",
+                    _ => "Invalid username or password."
+                },
+
+                AuthBusinessCodes.PasswordConfirmationDoesNotMatch => language switch
+                {
+                    Language.Hy => "Նոր գաղտնաբառը և հաստատման գաղտնաբառը չեն համընկնում։",
+                    Language.Ru => "Новый пароль и подтверждение пароля не совпадают.",
+                    Language.Ka => "ახალი პაროლი და მისი დადასტურება არ ემთხვევა.",
+                    _ => "The new password and confirmation password do not match."
+                },
+
                 AuthBusinessCodes.UserSuspended => language switch
                 {
                     Language.Hy => "Օգտատիրոջ հաշիվը կասեցված է։",

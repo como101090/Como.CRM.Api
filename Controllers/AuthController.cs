@@ -19,18 +19,22 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<LoginResponse>>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
         var result = await _authService.LoginAsync(request, cancellationToken);
-        return Ok(result);
+        return StatusCode(
+                   StatusCodes.Status201Created,
+                   ResponseFactory.Created(result));
     }
 
     [Authorize]
     [HttpPost("change-password")]
-    public async Task<ActionResult<bool>> ChangePassword([FromBody]ChangePasswordRequest request, CancellationToken ct)
+    public async Task<ActionResult<ApiResponse<bool>>> ChangePassword([FromBody]ChangePasswordRequest request, CancellationToken ct)
     {
         var result = await _authService.ChangePasswordAsync(request, ct);
 
-        return Ok(result);
+        return StatusCode(
+                 StatusCodes.Status201Created,
+                 ResponseFactory.Created(true));
     }
 }
